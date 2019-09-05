@@ -1,0 +1,34 @@
+- name: MY AS3 PLAYBOOK
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+
+  vars:
+    uri_method: POST
+
+  vars_files:
+    - ../../projects/creds/big_creds.yaml
+
+  tasks:
+
+  - name: REST CALL to BIG-IP
+    uri:
+      url: https://3.8.7.200/mgmt/shared/appsvcs/declare
+      user: "{{ bigip_user }}"
+      password: "{{ bigip_pass }}"
+      method: "{{ uri_method }}"
+      body: "{{ lookup('file','./as3-declaration.json') }}"
+      force_basic_auth: yes
+      status_code: 200
+      body_format: json
+      validate_certs: no
+    register: as3_response
+
+  - name: DEBUG OUTPUT AS3 RESPONSE
+    debug:
+      msg: "{{ as3_response }}"
+
+  - name: DEBUG A SPECIFIC ELEMENT
+    debug:
+      msg: "Connection = {{ as3_response.connection }}"
